@@ -1,0 +1,1708 @@
+Copy everything below into **Notepad** or **VS Code**, then save it as **`index.html`** using UTF-8 encoding. In Notepad, choose **Save as type → All files** so it doesn’t become `index.html.txt`.
+
+Double-click the saved file to open it in your browser. Tasks are saved in that browser.
+
+```html
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Heute — Task Manager &amp; Pomodoro</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #16252a;
+  --surface: #1f343a;
+  --surface2: #26424a;
+  --line: #33505a;
+  --text: #eef1e6;
+  --muted: #9db0ac;
+  --accent: #e8a33d;
+  --accent-ink: #3a2a0d;
+  --danger: #e0645a;
+  --warn: #e8a33d;
+  --low: #6fae8a;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: inherit; }
+
+html, body { min-height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, .brand { font-family: Fraunces, Georgia, serif; }
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+}
+
+header.top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.brand {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: .2px;
+}
+
+.brand span { color: var(--accent); }
+
+.subtitle {
+  color: var(--muted);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+}
+
+.stat-count {
+  font-size: 14px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.progress-track {
+  width: 160px;
+  height: 8px;
+  background: var(--surface2);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0;
+  background: var(--accent);
+  border-radius: 99px;
+  transition: width .35s ease;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.panel h2 {
+  margin: 0 0 14px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+#task-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+#task-form input[type="text"] { flex: 1 1 220px; }
+
+input[type="text"],
+input[type="datetime-local"],
+input[type="number"],
+select {
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 9px;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 14px;
+  min-width: 0;
+}
+
+input::placeholder { color: var(--muted); }
+select { cursor: pointer; }
+
+.btn {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: none;
+  border-radius: 9px;
+  padding: 10px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform .12s ease, filter .12s ease;
+}
+
+.btn:hover { filter: brightness(1.08); }
+.btn:active { transform: scale(.97); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--line);
+}
+
+.btn-ghost:hover {
+  color: var(--text);
+  border-color: var(--muted);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12.5px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--surface2);
+  padding: 4px;
+  border-radius: 10px;
+}
+
+.tab {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  padding: 7px 13px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tab.active {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filters select {
+  font-size: 13px;
+  padding: 7px 10px;
+}
+
+#search { min-width: 160px; }
+
+.cleanup-row {
+  display: flex;
+  gap: 8px;
+  margin: 6px 0 16px;
+  flex-wrap: wrap;
+}
+
+#todo-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.todo {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 12px 13px;
+  cursor: grab;
+  animation: pop .18s ease;
+}
+
+.todo.dragging { opacity: .4; }
+.todo.over { border-color: var(--accent); }
+
+@keyframes pop {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+.chk {
+  width: 19px;
+  height: 19px;
+  margin-top: 2px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  flex: none;
+}
+
+.todo-body { flex: 1; min-width: 0; }
+
+.todo-title {
+  font-size: 14.5px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.todo.done .todo-title {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.todo-title[contenteditable="true"] {
+  outline: 1px dashed var(--accent);
+  border-radius: 5px;
+  padding: 1px 4px;
+  cursor: text;
+}
+
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 7px;
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.badge.dot::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+.pri-high::before { background: var(--danger); }
+.pri-medium::before { background: var(--warn); }
+.pri-low::before { background: var(--low); }
+
+.badge.overdue {
+  background: rgba(224, 100, 90, .16);
+  border-color: var(--danger);
+  color: #ffb3ac;
+}
+
+.badge.today {
+  background: rgba(232, 163, 61, .16);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.todo-actions { display: flex; gap: 6px; flex: none; }
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 15px;
+  padding: 4px;
+  border-radius: 6px;
+  line-height: 1;
+}
+
+.icon-btn:hover {
+  color: var(--text);
+  background: var(--surface);
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--muted);
+  padding: 34px 10px;
+  font-size: 14px;
+}
+
+.pomo-trigger {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.pomo-trigger.running {
+  background: var(--surface2);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 16, 18, .6);
+  backdrop-filter: blur(2px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 50;
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal-card {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modalpop .18s ease;
+}
+
+@keyframes modalpop {
+  from { opacity: 0; transform: translateY(8px) scale(.98); }
+  to { opacity: 1; transform: none; }
+}
+
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  color: var(--text);
+  border-color: var(--muted);
+}
+
+.pomo-modes {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 18px;
+  background: var(--surface2);
+  padding: 4px;
+  border-radius: 10px;
+}
+
+.pomo-mode {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  padding: 8px 4px;
+  border-radius: 7px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pomo-mode.active {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.pomo-ring {
+  width: 200px;
+  height: 200px;
+  margin: 0 auto 18px;
+  position: relative;
+}
+
+.pomo-ring svg {
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+}
+
+.pomo-ring circle { fill: none; stroke-width: 9; }
+.ring-bg { stroke: var(--surface2); }
+
+.ring-fg {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  transition: stroke-dashoffset .25s linear;
+}
+
+.pomo-time {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Fraunces, Georgia, serif;
+  font-size: 38px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.pomo-controls {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.pomo-controls .btn { flex: 1; max-width: 130px; }
+
+.pomo-session {
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+.pomo-settings {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+.pomo-settings label {
+  font-size: 11px;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.pomo-settings input {
+  width: 100%;
+  padding: 7px 8px;
+  font-size: 13px;
+}
+
+#app-notice {
+  color: var(--accent);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+#app-notice:empty { display: none; }
+
+@media (max-width: 600px) {
+  .wrap { padding: 20px 12px; }
+  .panel { padding: 15px; }
+  .stats { gap: 10px; }
+  .progress-track { width: 100px; }
+  .filters { width: 100%; }
+  .filters > * { flex: 1 1 130px; }
+  #task-form > * { max-width: 100%; }
+  #task-form input[type="datetime-local"] { flex: 1 1 180px; }
+  .todo-actions { flex-direction: column; }
+  .tabs { width: 100%; }
+  .tab { flex: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: .001ms !important;
+    transition-duration: .001ms !important;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+  <p id="app-notice" role="status" aria-live="polite"></p>
+
+  <header class="top">
+    <div>
+      <h1 class="brand">Heute<span>.</span></h1>
+      <div class="subtitle">
+        Quản lý việc cần làm và tập trung học bằng Pomodoro
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat-count" id="stat-count">0 việc chưa xong</div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <button
+        class="btn pomo-trigger"
+        id="pomo-open-btn"
+        type="button"
+        aria-haspopup="dialog"
+        aria-controls="pomo-dialog"
+      >⏱ Pomodoro</button>
+    </div>
+  </header>
+
+  <main class="grid">
+    <section class="panel" aria-labelledby="tasks-heading">
+      <h2 id="tasks-heading">Việc cần làm</h2>
+
+      <form id="task-form">
+        <input
+          type="text"
+          id="input-title"
+          aria-label="Tên công việc"
+          placeholder="Thêm việc mới… (Enter để thêm)"
+          maxlength="200"
+          required
+        >
+
+        <select id="input-priority" aria-label="Ưu tiên">
+          <option value="medium">Ưu tiên: Trung bình</option>
+          <option value="high">Ưu tiên: Cao</option>
+          <option value="low">Ưu tiên: Thấp</option>
+        </select>
+
+        <select id="input-category" aria-label="Danh mục">
+          <option value="study">Học tập</option>
+          <option value="work">Công việc</option>
+          <option value="personal">Cá nhân</option>
+          <option value="other">Khác</option>
+        </select>
+
+        <input
+          type="datetime-local"
+          id="input-due"
+          aria-label="Hạn chót"
+        >
+
+        <button type="submit" class="btn">Thêm</button>
+      </form>
+
+      <div class="toolbar">
+        <div class="tabs" id="status-tabs" aria-label="Trạng thái công việc">
+          <button type="button" class="tab active" data-status="all">
+            Tất cả
+          </button>
+          <button type="button" class="tab" data-status="active">
+            Đang làm
+          </button>
+          <button type="button" class="tab" data-status="completed">
+            Đã xong
+          </button>
+        </div>
+
+        <div class="filters">
+          <input
+            type="text"
+            id="search"
+            aria-label="Tìm kiếm công việc"
+            placeholder="Tìm kiếm…"
+          >
+
+          <select id="filter-category" aria-label="Lọc danh mục">
+            <option value="all">Mọi danh mục</option>
+            <option value="study">Học tập</option>
+            <option value="work">Công việc</option>
+            <option value="personal">Cá nhân</option>
+            <option value="other">Khác</option>
+          </select>
+
+          <select id="filter-priority" aria-label="Lọc ưu tiên">
+            <option value="all">Mọi ưu tiên</option>
+            <option value="high">Cao</option>
+            <option value="medium">Trung bình</option>
+            <option value="low">Thấp</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="cleanup-row">
+        <button
+          type="button"
+          id="btn-complete-all"
+          class="btn btn-ghost btn-sm"
+        >Đánh dấu hoàn thành tất cả</button>
+
+        <button
+          type="button"
+          id="btn-clear-done"
+          class="btn btn-ghost btn-sm"
+        >Xóa việc đã hoàn thành</button>
+      </div>
+
+      <ul id="todo-list"></ul>
+
+      <div class="empty-state" id="empty-state" hidden>
+        Chưa có việc nào ở đây. Thêm việc mới để bắt đầu nhé.
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-overlay" id="pomo-overlay">
+    <div
+      class="modal-card panel"
+      id="pomo-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="pomo-heading"
+    >
+      <button
+        class="modal-close"
+        id="pomo-close-btn"
+        type="button"
+        aria-label="Đóng"
+      >✕</button>
+
+      <h2 id="pomo-heading">Pomodoro</h2>
+
+      <div class="pomo-modes" id="pomo-modes">
+        <button type="button" class="pomo-mode active" data-mode="work">
+          Học (25p)
+        </button>
+        <button type="button" class="pomo-mode" data-mode="short">
+          Nghỉ ngắn (5p)
+        </button>
+        <button type="button" class="pomo-mode" data-mode="long">
+          Nghỉ dài (15p)
+        </button>
+      </div>
+
+      <div class="pomo-ring">
+        <svg viewBox="0 0 200 200" aria-hidden="true">
+          <circle class="ring-bg" cx="100" cy="100" r="88"></circle>
+          <circle class="ring-fg" id="ring-fg" cx="100" cy="100" r="88"></circle>
+        </svg>
+        <div class="pomo-time" id="pomo-time">25:00</div>
+      </div>
+
+      <div class="pomo-controls">
+        <button type="button" class="btn" id="pomo-start">Bắt đầu</button>
+        <button type="button" class="btn btn-ghost" id="pomo-reset">
+          Đặt lại
+        </button>
+      </div>
+
+      <div class="pomo-session">
+        Phiên học đã hoàn thành hôm nay:
+        <strong id="pomo-count">0</strong>
+      </div>
+
+      <div class="pomo-settings">
+        <div>
+          <label for="set-work">Học (phút)</label>
+          <input type="number" id="set-work" min="1" max="180" value="25">
+        </div>
+        <div>
+          <label for="set-short">Nghỉ ngắn</label>
+          <input type="number" id="set-short" min="1" max="60" value="5">
+        </div>
+        <div>
+          <label for="set-long">Nghỉ dài</label>
+          <input type="number" id="set-long" min="1" max="90" value="15">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  const $ = id => document.getElementById(id);
+
+  const STORAGE_KEY = "banhoc.todos.v1";
+  const FILTER_KEY = "banhoc.filters.v1";
+  const POMO_KEY = "banhoc.pomo.v1";
+
+  const CAT_LABEL = {
+    work: "Công việc",
+    study: "Học tập",
+    personal: "Cá nhân",
+    other: "Khác"
+  };
+
+  const PRI_LABEL = {
+    high: "Cao",
+    medium: "Trung bình",
+    low: "Thấp"
+  };
+
+  const MODE_LABEL = {
+    work: "Học",
+    short: "Nghỉ ngắn",
+    long: "Nghỉ dài"
+  };
+
+  const MAX_MINUTES = { work: 180, short: 60, long: 90 };
+
+  const state = {
+    todos: [],
+    status: "all",
+    category: "all",
+    priority: "all",
+    search: ""
+  };
+
+  const pomo = {
+    mode: "work",
+    durations: { work: 25, short: 5, long: 15 },
+    remaining: 25 * 60,
+    running: false,
+    timer: null,
+    deadline: null,
+    sessions: 0,
+    date: todayKey()
+  };
+
+  const listEl = $("todo-list");
+  const overlay = $("pomo-overlay");
+  const openBtn = $("pomo-open-btn");
+  const ring = $("ring-fg");
+  const circumference = 2 * Math.PI * 88;
+
+  ring.style.strokeDasharray = String(circumference);
+
+  function announce(message) {
+    $("app-notice").textContent = message;
+  }
+
+  function readStorage(key) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw === null ? null : JSON.parse(raw);
+    } catch (error) {
+      console.warn("Không thể đọc dữ liệu đã lưu:", error);
+      return null;
+    }
+  }
+
+  function writeStorage(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+      return true;
+    } catch (error) {
+      console.warn("Không thể lưu dữ liệu:", error);
+      announce(
+        "Không thể lưu dữ liệu. Hãy kiểm tra quyền lưu trữ của trình duyệt."
+      );
+      return false;
+    }
+  }
+
+  function makeId() {
+    if (globalThis.crypto?.randomUUID) {
+      return globalThis.crypto.randomUUID();
+    }
+
+    return Date.now().toString(36) +
+      "-" + Math.random().toString(36).slice(2);
+  }
+
+  function todayKey() {
+    return new Date().toDateString();
+  }
+
+  function toLocalInput(date) {
+    const pad = value => String(value).padStart(2, "0");
+
+    return [
+      date.getFullYear(),
+      "-",
+      pad(date.getMonth() + 1),
+      "-",
+      pad(date.getDate()),
+      "T",
+      pad(date.getHours()),
+      ":",
+      pad(date.getMinutes())
+    ].join("");
+  }
+
+  function inHours(hours) {
+    return toLocalInput(new Date(Date.now() + hours * 3600000));
+  }
+
+  function validDue(value) {
+    return typeof value === "string" &&
+      Number.isFinite(Date.parse(value)) ? value : "";
+  }
+
+  function makeTodo(title, priority, category, dueDate, order) {
+    return {
+      id: makeId(),
+      title: title.trim().slice(0, 200),
+      isCompleted: false,
+      priority,
+      category,
+      dueDate: validDue(dueDate),
+      createdAt: new Date().toISOString(),
+      order
+    };
+  }
+
+  function loadTodos() {
+    const saved = readStorage(STORAGE_KEY);
+
+    if (Array.isArray(saved)) {
+      const ids = new Set();
+
+      state.todos = saved
+        .filter(task =>
+          task &&
+          typeof task.title === "string" &&
+          task.title.trim()
+        )
+        .map((task, index) => {
+          let id = typeof task.id === "string" &&
+            task.id && !ids.has(task.id) ? task.id : makeId();
+
+          while (ids.has(id)) id = makeId();
+          ids.add(id);
+
+          return {
+            id,
+            title: task.title.trim().slice(0, 200),
+            isCompleted: task.isCompleted === true,
+            priority: Object.hasOwn(PRI_LABEL, task.priority)
+              ? task.priority : "medium",
+            category: Object.hasOwn(CAT_LABEL, task.category)
+              ? task.category : "other",
+            dueDate: validDue(task.dueDate),
+            createdAt: typeof task.createdAt === "string"
+              ? task.createdAt : new Date().toISOString(),
+            order: Number.isFinite(task.order) ? task.order : index
+          };
+        })
+        .sort((a, b) => a.order - b.order);
+
+      normalizeOrder();
+      return;
+    }
+
+    state.todos = [
+      makeTodo(
+        "Đọc 2 chương giáo trình Ngôn ngữ học ứng dụng",
+        "high", "study", inHours(20), 0
+      ),
+      makeTodo(
+        "Nộp đề cương NCKH cho giảng viên hướng dẫn",
+        "medium", "study", inHours(72), 1
+      ),
+      makeTodo(
+        "Họp nhóm bàn corpus dữ liệu",
+        "low", "work", inHours(-3), 2
+      )
+    ];
+
+    saveTodos();
+  }
+
+  function normalizeOrder() {
+    state.todos.forEach((task, index) => {
+      task.order = index;
+    });
+  }
+
+  function saveTodos() {
+    writeStorage(STORAGE_KEY, state.todos);
+  }
+
+  function loadFilters() {
+    const saved = readStorage(FILTER_KEY);
+    if (!saved || typeof saved !== "object") return;
+
+    if (["all", "active", "completed"].includes(saved.status)) {
+      state.status = saved.status;
+    }
+
+    if (["all", ...Object.keys(CAT_LABEL)].includes(saved.category)) {
+      state.category = saved.category;
+    }
+
+    if (["all", ...Object.keys(PRI_LABEL)].includes(saved.priority)) {
+      state.priority = saved.priority;
+    }
+  }
+
+  function saveFilters() {
+    writeStorage(FILTER_KEY, {
+      status: state.status,
+      category: state.category,
+      priority: state.priority
+    });
+  }
+
+  function addTodo(title, priority, category, dueDate) {
+    title = title.trim().slice(0, 200);
+    if (!title) return false;
+
+    const task = makeTodo(
+      title,
+      Object.hasOwn(PRI_LABEL, priority) ? priority : "medium",
+      Object.hasOwn(CAT_LABEL, category) ? category : "other",
+      dueDate,
+      state.todos.length
+    );
+
+    state.todos.push(task);
+    saveTodos();
+    render();
+    return true;
+  }
+
+  function toggleTodo(id) {
+    const task = state.todos.find(item => item.id === id);
+    if (!task) return;
+
+    task.isCompleted = !task.isCompleted;
+    saveTodos();
+    render();
+  }
+
+  function deleteTodo(id) {
+    state.todos = state.todos.filter(task => task.id !== id);
+    normalizeOrder();
+    saveTodos();
+    render();
+  }
+
+  function editTodoTitle(id, title) {
+    const task = state.todos.find(item => item.id === id);
+    title = title.trim().slice(0, 200);
+
+    if (task && title) {
+      task.title = title;
+      saveTodos();
+    }
+
+    render();
+  }
+
+  function clearCompleted() {
+    state.todos = state.todos.filter(task => !task.isCompleted);
+    normalizeOrder();
+    saveTodos();
+    render();
+  }
+
+  function completeAll() {
+    state.todos.forEach(task => {
+      task.isCompleted = true;
+    });
+
+    saveTodos();
+    render();
+  }
+
+  function reorder(draggedId, targetId) {
+    const from = state.todos.findIndex(task => task.id === draggedId);
+    const to = state.todos.findIndex(task => task.id === targetId);
+
+    if (from < 0 || to < 0 || from === to) return;
+
+    const [moved] = state.todos.splice(from, 1);
+    state.todos.splice(to, 0, moved);
+
+    normalizeOrder();
+    saveTodos();
+    render();
+  }
+
+  function dueStatus(value) {
+    if (!value) return "none";
+
+    const due = new Date(value);
+    const now = new Date();
+
+    if (due < now) return "overdue";
+    if (due.toDateString() === now.toDateString()) return "today";
+    return "upcoming";
+  }
+
+  function formatDate(value) {
+    return new Date(value).toLocaleString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  }
+
+  function escapeHtml(value) {
+    const element = document.createElement("div");
+    element.textContent = value;
+    return element.innerHTML;
+  }
+
+  function getFiltered() {
+    const search = state.search.trim().toLocaleLowerCase("vi");
+
+    return state.todos
+      .filter(task => {
+        if (state.status === "active" && task.isCompleted) return false;
+        if (state.status === "completed" && !task.isCompleted) return false;
+
+        if (state.category !== "all" &&
+            task.category !== state.category) return false;
+
+        if (state.priority !== "all" &&
+            task.priority !== state.priority) return false;
+
+        return !search ||
+          task.title.toLocaleLowerCase("vi").includes(search);
+      })
+      .sort((a, b) => a.order - b.order);
+  }
+
+  function render() {
+    document.querySelectorAll(".tab").forEach(button => {
+      const active = button.dataset.status === state.status;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+
+    $("filter-category").value = state.category;
+    $("filter-priority").value = state.priority;
+
+    const tasks = getFiltered();
+    listEl.replaceChildren();
+
+    $("empty-state").hidden = tasks.length > 0;
+    $("empty-state").textContent = state.todos.length
+      ? "Không có công việc phù hợp với bộ lọc hiện tại."
+      : "Chưa có việc nào ở đây. Thêm việc mới để bắt đầu nhé.";
+
+    tasks.forEach(task => {
+      const li = document.createElement("li");
+      li.className = "todo" + (task.isCompleted ? " done" : "");
+      li.draggable = true;
+      li.dataset.id = task.id;
+
+      const due = task.isCompleted
+        ? "upcoming" : dueStatus(task.dueDate);
+
+      let dueBadge = "";
+
+      if (task.dueDate) {
+        const label = due === "overdue"
+          ? "Quá hạn · "
+          : due === "today" ? "Hôm nay · " : "";
+
+        const className = ["overdue", "today"].includes(due)
+          ? " " + due : "";
+
+        dueBadge = `
+          <span class="badge${className}">
+            ${label}${escapeHtml(formatDate(task.dueDate))}
+          </span>
+        `;
+      }
+
+      li.innerHTML = `
+        <input
+          type="checkbox"
+          class="chk"
+          ${task.isCompleted ? "checked" : ""}
+          aria-label="Đánh dấu hoàn thành"
+        >
+        <div class="todo-body">
+          <div class="todo-title" spellcheck="false">${escapeHtml(task.title)}</div>
+          <div class="meta-row">
+            <span class="badge dot pri-${task.priority}">
+              ${PRI_LABEL[task.priority]}
+            </span>
+            <span class="badge">${CAT_LABEL[task.category]}</span>
+            ${dueBadge}
+          </div>
+        </div>
+        <div class="todo-actions">
+          <button
+            type="button"
+            class="icon-btn btn-edit"
+            title="Sửa"
+            aria-label="Sửa"
+          >✎</button>
+          <button
+            type="button"
+            class="icon-btn btn-del"
+            title="Xóa"
+            aria-label="Xóa"
+          >✕</button>
+        </div>
+      `;
+
+      listEl.appendChild(li);
+    });
+
+    const total = state.todos.length;
+    const remaining = state.todos.filter(task => !task.isCompleted).length;
+    const completed = total - remaining;
+
+    $("stat-count").textContent = `${remaining} việc chưa xong`;
+    $("progress-fill").style.width = total
+      ? `${Math.round(completed / total * 100)}%`
+      : "0%";
+  }
+
+  $("task-form").addEventListener("submit", event => {
+    event.preventDefault();
+
+    const title = $("input-title");
+    const added = addTodo(
+      title.value,
+      $("input-priority").value,
+      $("input-category").value,
+      $("input-due").value
+    );
+
+    if (added) {
+      title.value = "";
+      $("input-due").value = "";
+      title.focus();
+    }
+  });
+
+  $("status-tabs").addEventListener("click", event => {
+    const button = event.target.closest(".tab");
+    if (!button) return;
+
+    state.status = button.dataset.status;
+    saveFilters();
+    render();
+  });
+
+  $("filter-category").addEventListener("change", event => {
+    state.category = event.target.value;
+    saveFilters();
+    render();
+  });
+
+  $("filter-priority").addEventListener("change", event => {
+    state.priority = event.target.value;
+    saveFilters();
+    render();
+  });
+
+  $("search").addEventListener("input", event => {
+    state.search = event.target.value;
+    render();
+  });
+
+  $("btn-complete-all").addEventListener("click", completeAll);
+  $("btn-clear-done").addEventListener("click", clearCompleted);
+
+  listEl.addEventListener("click", event => {
+    const li = event.target.closest(".todo");
+    if (!li) return;
+
+    if (event.target.classList.contains("chk")) {
+      toggleTodo(li.dataset.id);
+    } else if (event.target.closest(".btn-del")) {
+      deleteTodo(li.dataset.id);
+    } else if (event.target.closest(".btn-edit")) {
+      startEdit(li);
+    }
+  });
+
+  listEl.addEventListener("dblclick", event => {
+    const li = event.target.closest(".todo");
+
+    if (li && event.target.classList.contains("todo-title")) {
+      startEdit(li);
+    }
+  });
+
+  function startEdit(li) {
+    const title = li.querySelector(".todo-title");
+    if (title.isContentEditable) return;
+
+    li.draggable = false;
+    title.contentEditable = "true";
+    title.focus();
+
+    const selection = window.getSelection();
+    if (selection) selection.selectAllChildren(title);
+
+    let finished = false;
+
+    function finish(save) {
+      if (finished) return;
+      finished = true;
+
+      title.removeEventListener("keydown", onKey);
+      title.removeEventListener("blur", onBlur);
+      title.removeEventListener("paste", onPaste);
+      title.contentEditable = "false";
+      li.draggable = true;
+
+      if (save) {
+        editTodoTitle(li.dataset.id, title.textContent);
+      } else {
+        render();
+      }
+    }
+
+    function onKey(event) {
+      if (event.isComposing) return;
+
+      if (event.key === "Enter") {
+        event.preventDefault();
+        finish(true);
+      } else if (event.key === "Escape") {
+        event.preventDefault();
+        finish(false);
+      }
+    }
+
+    function onBlur() {
+      finish(true);
+    }
+
+    function onPaste(event) {
+      event.preventDefault();
+
+      const text = event.clipboardData.getData("text/plain");
+      const selection = window.getSelection();
+
+      if (!selection || !selection.rangeCount) return;
+
+      const range = selection.getRangeAt(0);
+      range.deleteContents();
+
+      const node = document.createTextNode(text);
+      range.insertNode(node);
+      range.setStartAfter(node);
+      range.collapse(true);
+
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+
+    title.addEventListener("keydown", onKey);
+    title.addEventListener("blur", onBlur);
+    title.addEventListener("paste", onPaste);
+  }
+
+  let draggedId = null;
+
+  function clearDragStyles() {
+    document.querySelectorAll(".todo.over, .todo.dragging")
+      .forEach(element => {
+        element.classList.remove("over", "dragging");
+      });
+  }
+
+  listEl.addEventListener("dragstart", event => {
+    const li = event.target.closest(".todo");
+    if (!li) return;
+
+    if (event.target.closest(
+      'button, input, [contenteditable="true"]'
+    )) {
+      event.preventDefault();
+      return;
+    }
+
+    draggedId = li.dataset.id;
+    event.dataTransfer.setData("text/plain", draggedId);
+    event.dataTransfer.effectAllowed = "move";
+    li.classList.add("dragging");
+  });
+
+  listEl.addEventListener("dragover", event => {
+    if (!draggedId) return;
+    event.preventDefault();
+
+    const li = event.target.closest(".todo");
+    if (!li) return;
+
+    document.querySelectorAll(".todo.over")
+      .forEach(element => element.classList.remove("over"));
+
+    li.classList.add("over");
+    event.dataTransfer.dropEffect = "move";
+  });
+
+  listEl.addEventListener("drop", event => {
+    event.preventDefault();
+
+    const li = event.target.closest(".todo");
+
+    if (li && draggedId) {
+      reorder(draggedId, li.dataset.id);
+    }
+
+    draggedId = null;
+    clearDragStyles();
+  });
+
+  listEl.addEventListener("dragend", () => {
+    draggedId = null;
+    clearDragStyles();
+  });
+
+  function resetSessionDay() {
+    const today = todayKey();
+
+    if (pomo.date !== today) {
+      pomo.date = today;
+      pomo.sessions = 0;
+      return true;
+    }
+
+    return false;
+  }
+
+  function savePomo() {
+    writeStorage(POMO_KEY, {
+      mode: pomo.mode,
+      durations: pomo.durations,
+      remaining: pomo.remaining,
+      running: pomo.running,
+      deadline: pomo.deadline,
+      sessions: pomo.sessions,
+      date: pomo.date
+    });
+  }
+
+  function loadPomo() {
+    const saved = readStorage(POMO_KEY);
+
+    if (saved && typeof saved === "object") {
+      for (const mode of Object.keys(MODE_LABEL)) {
+        const value = Number(saved.durations?.[mode]);
+
+        if (
+          Number.isInteger(value) &&
+          value >= 1 &&
+          value <= MAX_MINUTES[mode]
+        ) {
+          pomo.durations[mode] = value;
+        }
+      }
+
+      if (Object.hasOwn(MODE_LABEL, saved.mode)) {
+        pomo.mode = saved.mode;
+      }
+
+      pomo.sessions = saved.date === todayKey() &&
+        Number.isInteger(saved.sessions) &&
+        saved.sessions >= 0 ? saved.sessions : 0;
+
+      const total = pomo.durations[pomo.mode] * 60;
+
+      pomo.remaining = Number.isFinite(saved.remaining)
+        ? Math.max(0, Math.min(total, Math.ceil(saved.remaining)))
+        : total;
+
+      if (
+        saved.running === true &&
+        Number.isFinite(saved.deadline) &&
+        saved.deadline <= Date.now() + total * 1000
+      ) {
+        pomo.running = true;
+        pomo.deadline = saved.deadline;
+      }
+    }
+
+    for (const mode of Object.keys(MODE_LABEL)) {
+      $("set-" + mode).value = pomo.durations[mode];
+    }
+
+    if (pomo.running) {
+      tick();
+
+      if (pomo.running) {
+        pomo.timer = setInterval(tick, 250);
+      }
+    }
+  }
+
+  function renderPomo() {
+    if (resetSessionDay()) savePomo();
+
+    document.querySelectorAll(".pomo-mode").forEach(button => {
+      const mode = button.dataset.mode;
+      const active = mode === pomo.mode;
+
+      button.textContent =
+        `${MODE_LABEL[mode]} (${pomo.durations[mode]}p)`;
+
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+
+    const total = pomo.durations[pomo.mode] * 60;
+    const minutes = Math.floor(pomo.remaining / 60);
+    const seconds = pomo.remaining % 60;
+
+    const time =
+      `${String(minutes).padStart(2, "0")}:` +
+      `${String(seconds).padStart(2, "0")}`;
+
+    $("pomo-time").textContent = time;
+    $("pomo-count").textContent = pomo.sessions;
+    $("pomo-start").textContent = pomo.running ? "Tạm dừng" : "Bắt đầu";
+
+    const fraction = Math.max(
+      0,
+      Math.min(1, total ? pomo.remaining / total : 0)
+    );
+
+    ring.style.strokeDashoffset =
+      String(circumference * (1 - fraction));
+
+    const showCountdown =
+      pomo.running && !overlay.classList.contains("open");
+
+    openBtn.textContent = showCountdown
+      ? `⏱ ${time}` : "⏱ Pomodoro";
+
+    openBtn.classList.toggle("running", showCountdown);
+  }
+
+  function tick() {
+    if (!pomo.running) return;
+
+    resetSessionDay();
+
+    pomo.remaining = Math.max(
+      0,
+      Math.ceil((pomo.deadline - Date.now()) / 1000)
+    );
+
+    if (pomo.remaining === 0) {
+      const finishedAt = pomo.deadline;
+
+      clearInterval(pomo.timer);
+      pomo.timer = null;
+      pomo.running = false;
+      pomo.deadline = null;
+
+      if (
+        pomo.mode === "work" &&
+        new Date(finishedAt).toDateString() === todayKey()
+      ) {
+        pomo.sessions++;
+      }
+
+      savePomo();
+
+      announce(
+        pomo.mode === "work"
+          ? "Hết giờ học! Nghỉ một chút nhé."
+          : "Hết giờ nghỉ, quay lại học thôi."
+      );
+    }
+
+    renderPomo();
+  }
+
+  function startTimer() {
+    if (pomo.running) return;
+
+    resetSessionDay();
+
+    if (pomo.remaining <= 0) {
+      pomo.remaining = pomo.durations[pomo.mode] * 60;
+    }
+
+    pomo.deadline = Date.now() + pomo.remaining * 1000;
+    pomo.running = true;
+
+    clearInterval(pomo.timer);
+    pomo.timer = setInterval(tick, 250);
+
+    savePomo();
+    renderPomo();
+  }
+
+  function pauseTimer() {
+    if (pomo.running) tick();
+
+    pomo.running = false;
+    pomo.deadline = null;
+
+    clearInterval(pomo.timer);
+    pomo.timer = null;
+
+    savePomo();
+    renderPomo();
+  }
+
+  function resetTimer() {
+    pauseTimer();
+    pomo.remaining = pomo.durations[pomo.mode] * 60;
+    savePomo();
+    renderPomo();
+  }
+
+  function openPomo() {
+    overlay.classList.add("open");
+    document.querySelector("header.top").inert = true;
+    document.querySelector("main.grid").inert = true;
+    document.body.style.overflow = "hidden";
+
+    $("pomo-close-btn").focus();
+    renderPomo();
+  }
+
+  function closePomo() {
+    overlay.classList.remove("open");
+    document.querySelector("header.top").inert = false;
+    document.querySelector("main.grid").inert = false;
+    document.body.style.overflow = "";
+
+    openBtn.focus();
+    renderPomo();
+  }
+
+  openBtn.addEventListener("click", openPomo);
+  $("pomo-close-btn").addEventListener("click", closePomo);
+
+  overlay.addEventListener("click", event => {
+    if (event.target === overlay) closePomo();
+  });
+
+  document.addEventListener("keydown", event => {
+    if (!overlay.classList.contains("open")) return;
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closePomo();
+      return;
+    }
+
+    if (event.key !== "Tab") return;
+
+    const items = [...overlay.querySelectorAll("button, input")]
+      .filter(element => !element.disabled);
+
+    const first = items[0];
+    const last = items[items.length - 1];
+
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
+
+  $("pomo-modes").addEventListener("click", event => {
+    const button = event.target.closest(".pomo-mode");
+    if (!button) return;
+
+    pauseTimer();
+
+    pomo.mode = button.dataset.mode;
+    pomo.remaining = pomo.durations[pomo.mode] * 60;
+
+    savePomo();
+    renderPomo();
+  });
+
+  $("pomo-start").addEventListener("click", () => {
+    if (pomo.running) {
+      pauseTimer();
+    } else {
+      startTimer();
+    }
+  });
+
+  $("pomo-reset").addEventListener("click", resetTimer);
+
+  for (const mode of Object.keys(MODE_LABEL)) {
+    $("set-" + mode).addEventListener("change", event => {
+      let minutes = Number.parseInt(event.target.value, 10);
+
+      if (!Number.isFinite(minutes)) {
+        minutes = pomo.durations[mode];
+      }
+
+      minutes = Math.max(1, Math.min(MAX_MINUTES[mode], minutes));
+      event.target.value = minutes;
+
+      if (pomo.mode === mode) pauseTimer();
+
+      pomo.durations[mode] = minutes;
+
+      if (pomo.mode === mode) {
+        pomo.remaining = minutes * 60;
+      }
+
+      savePomo();
+      renderPomo();
+    });
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      if (pomo.running) tick();
+      savePomo();
+    } else {
+      if (pomo.running) tick();
+      renderPomo();
+    }
+  });
+
+  window.addEventListener("pagehide", () => {
+    if (pomo.running) tick();
+    savePomo();
+  });
+
+  loadFilters();
+  loadTodos();
+  loadPomo();
+  render();
+  renderPomo();
+})();
+</script>
+</body>
+</html>
+```
